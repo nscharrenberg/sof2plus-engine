@@ -629,9 +629,13 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
     sv_gametype->modified = qfalse;
 
     // run a few frames to allow everything to settle
+    // NOTE: SV_BotFrame is intentionally not called here. It drives the game
+    // module's bot_minplayers top-up check, which must not run before the
+    // client-reconnect loop below re-attaches bots that survived the previous
+    // map; otherwise it sees a momentarily empty roster and spawns duplicate
+    // bots on top of the survivors every map change.
     for(i = 0; i < 3; i++){
         VM_Call (gvm, GAME_RUN_FRAME, sv.time);
-        SV_BotFrame (sv.time);
         sv.time += 100;
         svs.time += 100;
     }
