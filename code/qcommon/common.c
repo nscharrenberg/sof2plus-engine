@@ -379,6 +379,12 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
                 SV_SpawnServer("mp_shop", qtrue);
             }
             else {
+                // A soft-crash recovery reconnects survivors from the crashed map the
+                // same as an ordinary map change would (killBots defaults false there).
+                // Drop bots first so they can't be double-counted against bot_minplayers
+                // and pile up across repeated recoveries; queued so it runs on the next
+                // Cbuf_Execute rather than reaching into the still-unwinding crashed VM.
+                Cbuf_AddText("kick allbots\n");
                 SV_Mapcycle_f();
             }
 
